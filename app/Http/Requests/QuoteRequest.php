@@ -13,7 +13,7 @@ class QuoteRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,13 @@ class QuoteRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'car_type' => 'required',
+            'name' => 'required|string',
+            'email' => 'required|email:rfc,dns',
+            'number_phone' => 'required|numeric',
+            'department' => 'required',
+            'municipality' => 'required',
+            'policies' => 'accepted|boolean'
         ];
     }
 }
