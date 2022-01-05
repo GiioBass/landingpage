@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreQuoteRequest;
-use App\Http\Requests\UpdateQuoteRequest;
+use App\Http\Requests\QuoteRequest;
+use App\Models\CarType;
+use App\Models\Department;
+use App\Models\Municipality;
 use App\Models\Quote;
+use Illuminate\View\View;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class QuoteController extends Controller
 {
@@ -13,9 +17,12 @@ class QuoteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index() : View
     {
-        return view('landing-page.index');
+        $car_types = CarType::all();
+        $departments = Department::all();
+        $municipalities = Municipality::all();
+        return view('landing-page.index', compact('car_types', 'departments', 'municipalities'));
     }
 
     /**
@@ -31,12 +38,28 @@ class QuoteController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreQuoteRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  \App\Http\Requests\QuoteRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(StoreQuoteRequest $request)
+    public function store(QuoteRequest $request)
     {
-        //
+        try {
+
+        Quote::create([
+            'car_type_id' => $request->car_type,
+            'name' => $request->name,
+            'email' => $request->email,
+            'number_phone' => $request->number_phone,
+            'department_id' => $request->department,
+            'municipality_id' => $request->municipality,
+            'policies' => $request->policies
+        ]);
+        toast('Su solicitud fue enviada correctamente','success');
+        return back();
+        }catch (\Throwable $th){
+            toast('Ocurrio un error intentelo de nuevo','warning');
+            return back();
+        }
     }
 
     /**
