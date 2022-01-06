@@ -34,7 +34,7 @@ class Quote extends Mailable
             ->view('mail.quote-mail')
             ->with([
                 'name' => $this->quote->name,
-                'mail' => $this->quote->mail,
+                'mail' => $this->quote->email,
                 'phone' => $this->quote->number_phone,
                 'car_type' => $this->quote->carType->name
             ]);
