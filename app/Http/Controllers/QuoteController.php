@@ -7,6 +7,8 @@ use App\Models\CarType;
 use App\Models\Department;
 use App\Models\Municipality;
 use App\Models\Quote;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -17,7 +19,7 @@ class QuoteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() : View
+    public function index(): View
     {
         $car_types = CarType::all();
         $departments = Department::all();
@@ -38,26 +40,35 @@ class QuoteController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\QuoteRequest  $request
+     * @param \App\Http\Requests\QuoteRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(QuoteRequest $request)
     {
         try {
 
-        Quote::create([
-            'car_type_id' => $request->car_type,
-            'name' => $request->name,
-            'email' => $request->email,
-            'number_phone' => $request->number_phone,
-            'department_id' => $request->department,
-            'municipality_id' => $request->municipality,
-            'policies' => $request->policies
-        ]);
-        toast('Su solicitud fue enviada correctamente','success');
-        return back();
-        }catch (\Throwable $th){
-            toast('Ocurrio un error intentelo de nuevo','warning');
+            $result = DB::table('quotes')
+                ->where('email', $request->email)
+                ->whereBetween('created_at', [Carbon::now()->toDateString() . ' 00:00:00', Carbon::now()->toDateString() . ' 23:59:59'])->exists();
+
+            if ($result) {
+                toast('Hace poco se solicito una cotización, espere 24 horas para realizar una nueva.', 'warning');
+                return back();
+            }
+            Quote::create([
+                'car_type_id' => $request->car_type,
+                'name' => $request->name,
+                'email' => $request->email,
+                'number_phone' => $request->number_phone,
+                'department_id' => $request->department,
+                'municipality_id' => $request->municipality,
+                'policies' => $request->policies
+            ]);
+
+            toast('Su solicitud fue enviada correctamente', 'success');
+            return back();
+        } catch (\Throwable $th) {
+            toast('Ocurrio un error intentelo de nuevo', 'warning');
             return back();
         }
     }
@@ -65,7 +76,7 @@ class QuoteController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param \App\Models\Quote $quote
      * @return \Illuminate\Http\Response
      */
     public function show(Quote $quote)
@@ -76,7 +87,7 @@ class QuoteController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param \App\Models\Quote $quote
      * @return \Illuminate\Http\Response
      */
     public function edit(Quote $quote)
@@ -87,8 +98,8 @@ class QuoteController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateQuoteRequest  $request
-     * @param  \App\Models\Quote  $quote
+     * @param \App\Http\Requests\UpdateQuoteRequest $request
+     * @param \App\Models\Quote $quote
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateQuoteRequest $request, Quote $quote)
@@ -99,7 +110,7 @@ class QuoteController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param \App\Models\Quote $quote
      * @return \Illuminate\Http\Response
      */
     public function destroy(Quote $quote)
