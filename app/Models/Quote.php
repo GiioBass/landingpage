@@ -18,4 +18,8 @@ class Quote extends Model
         'municipality_id',
         'policies'
     ];
+
+    public function carType(){
+        return $this->belongsTo(CarType::class);
+    }
 }
