@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
 {
@@ -55,7 +56,7 @@ class QuoteController extends Controller
                 toast('Hace poco se solicito una cotización, espere 24 horas para realizar una nueva.', 'warning');
                 return back();
             }
-            Quote::create([
+            $quote = Quote::create([
                 'car_type_id' => $request->car_type,
                 'name' => $request->name,
                 'email' => $request->email,
@@ -65,10 +66,21 @@ class QuoteController extends Controller
                 'policies' => $request->policies
             ]);
 
+            $emails = [
+                'jaguilar@processot.com.co',
+                'jcastro@processot.com.co',
+                'mahernandez@processot.com.co'
+            ];
+
+
+            foreach ($emails as $email){
+                Mail::to($email)->send(new \App\Mail\Quote($quote));
+            }
+
             toast('Su solicitud fue enviada correctamente', 'success');
             return back();
         } catch (\Throwable $th) {
-            toast('Ocurrio un error intentelo de nuevo', 'warning');
+            toast('Ocurrio un error intentelo de nuevo' . $th, 'warning');
             return back();
         }
     }

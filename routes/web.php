@@ -13,3 +13,7 @@ use App\Http\Controllers\QuoteController;
 |
 */
 Route::resource('/', QuoteController::class);
+
+Route::get('mail', function (){
+    return view ('mail.quote-mail');
+});
